@@ -13,7 +13,7 @@ const pool = new Pool({
 const {TranslationServiceClient} = require('@google-cloud/translate');
 const projectId = process.env.PROJID;
 const location = 'global';
-const translationClient = new TranslationServiceClient({projectId, keyFilename});
+const translationClient = new TranslationServiceClient();
 
 pool.on('error', (err, client) => {
     console.error('Unexpected error on idle client', err)
