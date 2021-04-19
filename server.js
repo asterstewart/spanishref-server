@@ -19,12 +19,32 @@ pool.on('error', (err, client) => {
     process.exit(-1)
 })
 
-var corsOptions = {
-  origin: 'https://sr.nathanstewart.me',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
-app.get('/l/:text', cors(corsOptions), (req, res, next) => {
+app.use(cors());
+app.options('/l/:text', function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.end();
+});
+app.options('/t/:origin/:text', function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.end();
+});
+app.options('/c/:verb/', function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.end();
+});
+app.options('/v/:verb/', function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.end();
+});
+app.get('/l/:text/', (req, res) => {
     const text = req.params.text;
     (async () => {
         // Construct request
@@ -43,7 +63,7 @@ app.get('/l/:text', cors(corsOptions), (req, res, next) => {
     );
 });
 
-app.get('/t/:origin/:text', cors(corsOptions), (req, res, next) => {
+app.get('/t/:origin/:text/',(req, res) => {
     const text = req.params.text;
     let source = "", target = "";
     if (req.params.origin === "es") {
@@ -73,7 +93,7 @@ app.get('/t/:origin/:text', cors(corsOptions), (req, res, next) => {
     })().catch(err => {res.send(''); throw err; });
 });
 
-app.get('/c/:verb', cors(corsOptions), (req, res, next) => {
+app.get('/c/:verb/',(req, res) => {
     let verbData = {};
     (async () => {
         let verb = req.params.verb;
@@ -104,7 +124,7 @@ app.get('/c/:verb', cors(corsOptions), (req, res, next) => {
     );
 });
 
-app.get('/v/:verb', cors(corsOptions), (req, res, next) => {
+app.get('/v/:verb/',(req, res) => {
     (async () => {
         let verb = req.params.verb;
         let { rows } = await pool.query('SELECT * FROM infinitive WHERE infinitive = $1', [verb]);
