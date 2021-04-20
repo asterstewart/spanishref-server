@@ -5,7 +5,7 @@ const app = express();
 const { Pool } = require('pg');
 const pool = new Pool({
     user: process.env.DBUSER,
-    host: process.env.DBIP,
+    host: '/cloudsql/' + process.env.PROJID + ':us-east4:verbref',
     database: 'verbs',
     password: process.env.DBPASS
 });
@@ -21,7 +21,7 @@ pool.on('error', (err, client) => {
 
 app.use(cors());
 
-app.get('/l/:text/', (req, res) => {
+app.get('/l/:text', (req, res) => {
     const text = req.params.text;
     (async () => {
         // Construct request
@@ -40,7 +40,7 @@ app.get('/l/:text/', (req, res) => {
     );
 });
 
-app.get('/t/:origin/:text/',(req, res) => {
+app.get('/t/:origin/:text',(req, res) => {
     const text = req.params.text;
     let source = "", target = "";
     if (req.params.origin === "es") {
@@ -70,7 +70,8 @@ app.get('/t/:origin/:text/',(req, res) => {
     })().catch(err => {res.send(''); throw err; });
 });
 
-app.get('/c/:verb/',(req, res) => {
+app.get('/c/:verb',(req, res) => {
+    console.log('Entered')
     let verbData = {};
     (async () => {
         let verb = req.params.verb;
@@ -102,7 +103,7 @@ app.get('/c/:verb/',(req, res) => {
     );
 });
 
-app.get('/v/:verb/',(req, res) => {
+app.get('/v/:verb',(req, res) => {
     (async () => {
         let verb = req.params.verb;
         let { rows } = await pool.query('SELECT * FROM infinitive WHERE infinitive = $1', [verb]);
