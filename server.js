@@ -97,7 +97,8 @@ app.get('/c/:verb/',(req, res) => {
         rows = await pool.query('SELECT * FROM verbs WHERE infinitive = $1', [verb]);
         verbData.conjugations = rows.rows;
         res.send(verbData);
-    })().catch(err => {throw err}
+    })().catch(err => {
+        console.log(err); throw err}
     );
 });
 
