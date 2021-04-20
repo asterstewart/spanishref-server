@@ -24,6 +24,15 @@ pool.on('error', (err, client) => {
 })
 
 app.use(express.json());
+const key = process.env.APIKEY;
+app.use(function(req, res, next) {
+    let offeredKey = req.body.key;
+    if (key == offeredKey) {
+        next();
+    } else {
+        res.status(403).render();
+    }
+})
 
 app.use(cors());
 // TODO - add key checking
