@@ -19,11 +19,7 @@ pool.on('error', (err, client) => {
     process.exit(-1)
 })
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+app.use(cors());
 
 app.get('/l/:text/', (req, res) => {
     const text = req.params.text;
@@ -74,7 +70,7 @@ app.get('/t/:origin/:text/',(req, res) => {
     })().catch(err => {res.send(''); throw err; });
 });
 
-app.get('/c/:verb/',(req, res, next) => {
+app.get('/c/:verb/',(req, res) => {
     let verbData = {};
     (async () => {
         let verb = req.params.verb;
