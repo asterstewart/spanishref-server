@@ -13,16 +13,22 @@ const {TranslationServiceClient} = require('@google-cloud/translate');
 const projectId = process.env.PROJID;
 const location = 'global';
 const translationClient = new TranslationServiceClient();
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+}));
 
 pool.on('error', (err, client) => {
     console.error('Unexpected error on idle client ', err)
     process.exit(-1)
 })
 
-app.use(cors());
+app.use(express.json());
 
-app.get('/l/:text', (req, res) => {
-    const text = req.params.text;
+app.use(cors());
+// TODO - add key checking
+app.post('/l', (req, res) => {
+    const text = req.body.text;
     (async () => {
         // Construct request
         const request = {
@@ -40,13 +46,13 @@ app.get('/l/:text', (req, res) => {
     );
 });
 
-app.get('/t/:origin/:text',(req, res) => {
-    const text = req.params.text;
+app.post('/t',(req, res) => {
+    const text = req.body.text;
     let source = "", target = "";
-    if (req.params.origin === "es") {
+    if (req.body.origin === "es") {
         source = "es";
         target = "en";
-    } else if (req.params.origin === "en") {
+    } else if (req.body.origin === "en") {
         source = "en";
         target = "es";
     } else {
@@ -70,11 +76,10 @@ app.get('/t/:origin/:text',(req, res) => {
     })().catch(err => {res.send(''); throw err; });
 });
 
-app.get('/c/:verb',(req, res) => {
-    console.log('Entered')
+app.post('/c',(req, res) => {
     let verbData = {};
     (async () => {
-        let verb = req.params.verb;
+        let verb = req.body.verb;
         let { rows } = await pool.query('SELECT * FROM infinitive WHERE infinitive = $1', [verb]);
         if (!rows[0]) {
             rows = await pool.query('SELECT * FROM lookup WHERE conjug = $1', [verb]);
@@ -103,9 +108,9 @@ app.get('/c/:verb',(req, res) => {
     );
 });
 
-app.get('/v/:verb',(req, res) => {
+app.post('/v',(req, res) => {
     (async () => {
-        let verb = req.params.verb;
+        let verb = req.body.verb;
         let { rows } = await pool.query('SELECT * FROM infinitive WHERE infinitive = $1', [verb]);
         if (!rows[0]) {
             rows = await pool.query('SELECT * FROM lookup WHERE conjug = $1', [verb]);
