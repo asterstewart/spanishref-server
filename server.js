@@ -24,18 +24,9 @@ pool.on('error', (err, client) => {
 })
 
 app.use(express.json());
-const key = process.env.APIKEY;
-app.use(function(req, res, next) {
-    let offeredKey = req.body.key;
-    if (key == offeredKey) {
-        next();
-    } else {
-        res.status(403).send();
-    }
-})
 
-app.use(cors());
-// TODO - add key checking
+app.use(cors({origin: 'https://sr.nathanstewart.me', optionsSuccessStatus: 200}));
+
 app.post('/l', (req, res) => {
     const text = req.body.text;
     (async () => {
