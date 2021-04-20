@@ -15,35 +15,16 @@ const location = 'global';
 const translationClient = new TranslationServiceClient();
 
 pool.on('error', (err, client) => {
-    console.error('Unexpected error on idle client', err)
+    console.error('Unexpected error on idle client ', err)
     process.exit(-1)
 })
 
-app.use(cors());
-app.options('/l/:text', function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  res.end();
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
-app.options('/t/:origin/:text', function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  res.end();
-});
-app.options('/c/:verb/', function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  res.end();
-});
-app.options('/v/:verb/', function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader('Access-Control-Allow-Methods', '*');
-  res.setHeader("Access-Control-Allow-Headers", "*");
-  res.end();
-});
+
 app.get('/l/:text/', (req, res) => {
     const text = req.params.text;
     (async () => {
@@ -93,7 +74,7 @@ app.get('/t/:origin/:text/',(req, res) => {
     })().catch(err => {res.send(''); throw err; });
 });
 
-app.get('/c/:verb/',(req, res) => {
+app.get('/c/:verb/',(req, res, next) => {
     let verbData = {};
     (async () => {
         let verb = req.params.verb;
