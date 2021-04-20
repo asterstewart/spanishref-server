@@ -30,7 +30,7 @@ app.use(function(req, res, next) {
     if (key == offeredKey) {
         next();
     } else {
-        res.status(403).render();
+        res.status(403).send();
     }
 })
 
