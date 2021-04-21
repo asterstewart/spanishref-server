@@ -2,6 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const jwt = require('express-jwt');
+const jwks = require('jwks-rsa');
 const { Pool } = require('pg');
 const pool = new Pool({
     user: process.env.DBUSER,
@@ -9,6 +11,7 @@ const pool = new Pool({
     database: 'verbs',
     password: process.env.DBPASS
 });
+
 const {TranslationServiceClient} = require('@google-cloud/translate');
 const projectId = process.env.PROJID;
 const location = 'global';
@@ -18,6 +21,18 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 
+let jwtCheck = jwt({
+    secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: 'https://spanishref.us.auth0.com/.well-known/jwks.json'
+    }),
+    audience: 'https://api.sr.nathanstewart.me',
+    issuer: 'https://spanishref.us.auth0.com/',
+    algorithms: ['RS256']
+});
+
 pool.on('error', (err, client) => {
     console.error('Unexpected error on idle client ', err)
     process.exit(-1)
@@ -26,6 +41,8 @@ pool.on('error', (err, client) => {
 app.use(express.json());
 
 app.use(cors({origin: 'https://sr.nathanstewart.me', optionsSuccessStatus: 200}));
+
+app.use(jwtCheck);
 
 app.post('/l', (req, res) => {
     const text = req.body.text;
